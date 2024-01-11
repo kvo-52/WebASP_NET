@@ -21,7 +21,7 @@ namespace WebApp1_Product.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=http://localhost:3306/; Database=students-db1;Integrated Security=False;TrustServerCertificate=True; Trusted_Connection=True;")
+            optionsBuilder.UseSqlServer(@"Server=.; Database=students-db1;Integrated Security=False;TrustServerCertificate=True; Trusted_Connection=True;")
             .UseLazyLoadingProxies();
         }
 
