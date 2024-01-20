@@ -19,10 +19,22 @@ namespace WebApp1_Product.Models
 
         }
 
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer(@"Server=.; Database=students-db1;Integrated Security=False;TrustServerCertificate=True; Trusted_Connection=True;")
+        //    .UseLazyLoadingProxies();
+        //}
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=.; Database=students-db1;Integrated Security=False;TrustServerCertificate=True; Trusted_Connection=True;")
-            .UseLazyLoadingProxies();
+            var config = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json")
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .Build();
+
+
+            optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"))
+                .UseLazyLoadingProxies();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
