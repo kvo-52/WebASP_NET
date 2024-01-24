@@ -5,21 +5,20 @@ using WebApp2_Magazin.Abstraction;
 using WebApp2_Magazin.Mapper;
 using WebApp2_Magazin.Services;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using Autofac;
 using WebApp2_Magazin.Query;
+using WebApp2_Magazin.Mutation;
 
 namespace WebApp2_Magazin
 {
     public class Program
     {
-        public static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddMemoryCache();
             builder.Services.AddAutoMapper(typeof(MapperProfile));
+            //builder.Services.AddPooledDbContextFactory<AppDbContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("db")));
 
             builder.Services.AddTransient<IProductService, ProductService>();
             builder.Services.AddTransient<IStorageService, StorageService>();
@@ -29,36 +28,19 @@ namespace WebApp2_Magazin
             {
                 cb.Register(c => new AppDbContext(builder.Configuration.GetConnectionString("db"))).InstancePerDependency();
             });
+            //builder.Services.AddDbContext<AppDbContext>(conf => conf.UseNpgsql(builder.Configuration.GetConnectionString("db")));
+            builder.Services.AddGraphQL();
 
-            //builder.Services.AddGraphQL();
+            builder.Services
+                .AddGraphQLServer()
+                .AddQueryType<MySimpleQuery>()
+                .AddMutationType<MySimpleMutation>();
 
-            //builder.Services
-            //.AddGraphQLServer()
-            //.AddQueryType<MySimpleQuery>()
-            //.AddMutationType<MySimpleMutation>();
-
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            //builder.Services.AddEndpointsApiExplorer();
-            //builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            //app.MapGraphQL();
-            //AppContext.SetSwitch("MySql.EnableLegacyTimestampBehavior", true);
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
+            app.MapGraphQL();
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             app.Run();
         }
